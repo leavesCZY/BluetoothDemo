@@ -11,7 +11,7 @@ import android.widget.TextView;
 /**
  * 作者：叶应是叶
  * 时间：2017/9/8 20:02
- * 描述：
+ * 描述：加载对话框
  */
 public class LoadingDialog extends Dialog {
 
