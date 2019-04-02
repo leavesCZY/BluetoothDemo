@@ -1,4 +1,4 @@
-package com.comit.mac;
+package leavesc.hello.bluetooth;
 
 import org.junit.Test;
 

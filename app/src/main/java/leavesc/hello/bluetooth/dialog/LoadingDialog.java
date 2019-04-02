@@ -1,4 +1,4 @@
-package com.comit.mac;
+package leavesc.hello.bluetooth.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -8,10 +8,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import leavesc.hello.bluetooth.R;
+
 /**
- * 作者：叶应是叶
- * 时间：2017/9/8 20:02
- * 描述：加载对话框
+ * 作者：leavesC
+ * 时间：2019/3/23 11:43
+ * 描述：
+ * GitHub：https://github.com/leavesC
+ * Blog：https://www.jianshu.com/u/9df45b87cfdf
  */
 public class LoadingDialog extends Dialog {
 
@@ -24,8 +28,8 @@ public class LoadingDialog extends Dialog {
     public LoadingDialog(Context context) {
         super(context, R.style.LoadingDialogTheme);
         setContentView(R.layout.dialog_loading);
-        iv_loading = (ImageView) findViewById(R.id.iv_loading);
-        tv_hint = (TextView) findViewById(R.id.tv_hint);
+        iv_loading = findViewById(R.id.iv_loading);
+        tv_hint = findViewById(R.id.tv_hint);
         animation = AnimationUtils.loadAnimation(context, R.anim.loading_dialog);
     }
 

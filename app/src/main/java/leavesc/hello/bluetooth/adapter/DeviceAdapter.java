@@ -1,4 +1,4 @@
-package com.comit.mac;
+package leavesc.hello.bluetooth.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -12,10 +12,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import leavesc.hello.bluetooth.R;
+
 /**
- * 作者：叶应是叶
- * 时间：2017/9/8 20:02
- * 描述：蓝牙设备列表Adapter
+ * 作者：leavesC
+ * 时间：2019/3/23 11:43
+ * 描述：
+ * GitHub：https://github.com/leavesC
+ * Blog：https://www.jianshu.com/u/9df45b87cfdf
  */
 public class DeviceAdapter extends BaseAdapter {
 
@@ -63,13 +67,13 @@ public class DeviceAdapter extends BaseAdapter {
         if (view == null) {
             view = layoutInflater.inflate(R.layout.item_device, null);
             viewHolder = new ViewHolder();
-            viewHolder.tv_deviceStatus = (TextView) view.findViewById(R.id.tv_deviceStatus);
+            viewHolder.tv_deviceStatus = view.findViewById(R.id.tv_deviceStatus);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
         BluetoothDevice bluetoothDevice = bluetoothDeviceList.get(i);
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         sb.append("设备名：");
         sb.append(TextUtils.isEmpty(bluetoothDevice.getName()) ? "未知" : bluetoothDevice.getName());
         sb.append("\nMac地址：");
@@ -86,4 +90,3 @@ public class DeviceAdapter extends BaseAdapter {
     }
 
 }
-

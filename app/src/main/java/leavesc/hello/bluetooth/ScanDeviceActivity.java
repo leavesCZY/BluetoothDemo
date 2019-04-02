@@ -1,4 +1,4 @@
-package com.comit.mac;
+package leavesc.hello.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,18 +9,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import leavesc.hello.bluetooth.adapter.DeviceAdapter;
 
 /**
- * 作者：叶应是叶
- * 时间：2017/9/8 20:13
+ * 作者：leavesC
+ * 时间：2019/3/23 11:43
  * 描述：
+ * GitHub：https://github.com/leavesC
+ * Blog：https://www.jianshu.com/u/9df45b87cfdf
  */
-public class ScanDeviceActivity extends AppCompatActivity {
-
-    private LoadingDialog loadingDialog;
+public class ScanDeviceActivity extends BaseActivity {
 
     private DeviceAdapter deviceAdapter;
 
@@ -31,23 +31,25 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private BroadcastReceiver discoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                    showLoadingDialog("正在搜索附近的蓝牙设备");
-                    break;
-                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                    Toast.makeText(ScanDeviceActivity.this, "搜索结束", Toast.LENGTH_SHORT).show();
-                    hideLoadingDialog();
-                    break;
-                case BluetoothDevice.ACTION_FOUND:
-                    BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    deviceAdapter.addDevice(bluetoothDevice);
-                    deviceAdapter.notifyDataSetChanged();
-                    break;
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        showLoadingDialog("正在搜索附近的蓝牙设备");
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        showToast("搜索结束");
+                        hideLoadingDialog();
+                        break;
+                    case BluetoothDevice.ACTION_FOUND:
+                        BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        deviceAdapter.addDevice(bluetoothDevice);
+                        deviceAdapter.notifyDataSetChanged();
+                        break;
+                }
             }
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,9 @@ public class ScanDeviceActivity extends AppCompatActivity {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null) {
-            Toast.makeText(this, "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
+            showToast("当前设备不支持蓝牙");
             finish();
+            return;
         }
         initView();
         registerDiscoveryReceiver();
@@ -75,7 +78,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        ListView lv_deviceList = (ListView) findViewById(R.id.lv_deviceList);
+        ListView lv_deviceList = findViewById(R.id.lv_deviceList);
         deviceAdapter = new DeviceAdapter(this);
         lv_deviceList.setAdapter(deviceAdapter);
     }
@@ -90,7 +93,9 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private void startScan() {
-        if (!bluetoothAdapter.isEnabled()) {
+        if (bluetoothAdapter.isEnabled()) {
+            scanDevice();
+        } else {
             if (bluetoothAdapter.enable()) {
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -99,10 +104,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     }
                 }, 1500);
             } else {
-                Toast.makeText(this, "请求蓝牙权限被拒绝，请授权", Toast.LENGTH_SHORT).show();
+                showToast("请求蓝牙权限被拒绝，请授权");
             }
-        } else {
-            scanDevice();
         }
     }
 
@@ -111,19 +114,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
             bluetoothAdapter.cancelDiscovery();
         }
         bluetoothAdapter.startDiscovery();
-    }
-
-    private void showLoadingDialog(String message) {
-        if (loadingDialog == null) {
-            loadingDialog = new LoadingDialog(this);
-        }
-        loadingDialog.show(message, true, false);
-    }
-
-    private void hideLoadingDialog() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
     }
 
 }

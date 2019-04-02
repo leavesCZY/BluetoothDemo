@@ -1,4 +1,4 @@
-package com.comit.mac;
+package leavesc.hello.bluetooth;
 
 import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
@@ -12,20 +12,22 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.lang.reflect.Method;
 
+import leavesc.hello.bluetooth.adapter.DeviceAdapter;
+
 /**
- * 作者：叶应是叶
- * 时间：2017/9/8 20:02
+ * 作者：leavesC
+ * 时间：2019/3/23 11:43
  * 描述：
+ * GitHub：https://github.com/leavesC
+ * Blog：https://www.jianshu.com/u/9df45b87cfdf
  */
-public class ConnectA2dpActivity extends AppCompatActivity {
+public class ConnectA2dpActivity extends BaseActivity {
 
     private DeviceAdapter deviceAdapter;
 
@@ -35,31 +37,32 @@ public class ConnectA2dpActivity extends AppCompatActivity {
 
     private BluetoothA2dp bluetoothA2dp;
 
-    private LoadingDialog loadingDialog;
-
-    private final String TAG = "ConnectA2dpActivity";
+    private static final String TAG = "ConnectA2dpActivity";
 
     private BroadcastReceiver a2dpReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED:
-                    int connectState = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_DISCONNECTED);
-                    if (connectState == BluetoothA2dp.STATE_DISCONNECTED) {
-                        Toast.makeText(ConnectA2dpActivity.this, "已断开连接", Toast.LENGTH_SHORT).show();
-                    } else if (connectState == BluetoothA2dp.STATE_CONNECTED) {
-                        Toast.makeText(ConnectA2dpActivity.this, "已连接", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED:
-                    int playState = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_NOT_PLAYING);
-                    if (playState == BluetoothA2dp.STATE_PLAYING) {
-                        Toast.makeText(ConnectA2dpActivity.this, "处于播放状态", Toast.LENGTH_SHORT).show();
-                    } else if (playState == BluetoothA2dp.STATE_NOT_PLAYING) {
-                        Toast.makeText(ConnectA2dpActivity.this, "未在播放", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED:
+                        int connectState = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_DISCONNECTED);
+                        if (connectState == BluetoothA2dp.STATE_DISCONNECTED) {
+                            showToast("已断开连接");
+                        } else if (connectState == BluetoothA2dp.STATE_CONNECTED) {
+                            showToast("已连接");
+                        }
+                        break;
+                    case BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED:
+                        int playState = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_NOT_PLAYING);
+                        if (playState == BluetoothA2dp.STATE_PLAYING) {
+                            showToast("处于播放状态");
+                        } else if (playState == BluetoothA2dp.STATE_NOT_PLAYING) {
+                            showToast("未在播放");
+                        }
+                        break;
+                }
             }
         }
     };
@@ -67,28 +70,31 @@ public class ConnectA2dpActivity extends AppCompatActivity {
     private BroadcastReceiver discoveryReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                    showLoadingDialog("正在搜索蓝牙设备，搜索时间大约一分钟");
-                    break;
-                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                    Toast.makeText(ConnectA2dpActivity.this, "搜索蓝牙设备结束", Toast.LENGTH_SHORT).show();
-                    hideLoadingDialog();
-                    break;
-                case BluetoothDevice.ACTION_FOUND:
-                    BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    deviceAdapter.addDevice(bluetoothDevice);
-                    deviceAdapter.notifyDataSetChanged();
-                    break;
-                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
-                    int status = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE);
-                    if (status == BluetoothDevice.BOND_BONDED) {
-                        Toast.makeText(ConnectA2dpActivity.this, "已连接", Toast.LENGTH_SHORT).show();
-                    } else if (status == BluetoothDevice.BOND_NONE) {
-                        Toast.makeText(ConnectA2dpActivity.this, "未连接", Toast.LENGTH_SHORT).show();
-                    }
-                    hideLoadingDialog();
-                    break;
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                        showLoadingDialog("正在搜索蓝牙设备，搜索时间大约一分钟");
+                        break;
+                    case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                        showToast("搜索蓝牙设备结束");
+                        hideLoadingDialog();
+                        break;
+                    case BluetoothDevice.ACTION_FOUND:
+                        BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        deviceAdapter.addDevice(bluetoothDevice);
+                        deviceAdapter.notifyDataSetChanged();
+                        break;
+                    case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                        int status = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE);
+                        if (status == BluetoothDevice.BOND_BONDED) {
+                            showToast("已连接");
+                        } else if (status == BluetoothDevice.BOND_NONE) {
+                            showToast("未连接");
+                        }
+                        hideLoadingDialog();
+                        break;
+                }
             }
         }
     };
@@ -98,7 +104,7 @@ public class ConnectA2dpActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(int profile) {
             if (profile == BluetoothProfile.A2DP) {
-                Toast.makeText(ConnectA2dpActivity.this, "onServiceDisconnected", Toast.LENGTH_SHORT).show();
+                showToast("onServiceDisconnected");
                 bluetoothA2dp = null;
             }
         }
@@ -106,7 +112,7 @@ public class ConnectA2dpActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(int profile, final BluetoothProfile proxy) {
             if (profile == BluetoothProfile.A2DP) {
-                Toast.makeText(ConnectA2dpActivity.this, "onServiceConnected", Toast.LENGTH_SHORT).show();
+                showToast("onServiceConnected");
                 bluetoothA2dp = (BluetoothA2dp) proxy;
             }
         }
@@ -117,14 +123,13 @@ public class ConnectA2dpActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             BluetoothDevice device = deviceAdapter.getDevice(position);
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                Toast.makeText(ConnectA2dpActivity.this, "已连接该设备", Toast.LENGTH_SHORT).show();
+                showToast("已连接该设备");
                 return;
             }
             showLoadingDialog("正在连接");
             connectA2dp(device);
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,8 +138,9 @@ public class ConnectA2dpActivity extends AppCompatActivity {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null || !getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(ConnectA2dpActivity.this, "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
+            showToast("当前设备不支持蓝牙");
             finish();
+            return;
         }
         bluetoothAdapter.getProfileProxy(this, profileServiceListener, BluetoothProfile.A2DP);
         initView();
@@ -155,7 +161,7 @@ public class ConnectA2dpActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        ListView lv_deviceList = (ListView) findViewById(R.id.lv_deviceList);
+        ListView lv_deviceList = findViewById(R.id.lv_deviceList);
         deviceAdapter = new DeviceAdapter(this);
         lv_deviceList.setAdapter(deviceAdapter);
         lv_deviceList.setOnItemClickListener(itemClickListener);
@@ -187,7 +193,7 @@ public class ConnectA2dpActivity extends AppCompatActivity {
                     }
                 }, 1500);
             } else {
-                Toast.makeText(ConnectA2dpActivity.this, "请求蓝牙权限被拒绝", Toast.LENGTH_SHORT).show();
+                showToast("请求蓝牙权限被拒绝");
             }
         } else {
             scanDevice();
@@ -220,19 +226,6 @@ public class ConnectA2dpActivity extends AppCompatActivity {
             connectMethod.invoke(bluetoothA2dp, bluetoothDevice);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private void showLoadingDialog(String message) {
-        if (loadingDialog == null) {
-            loadingDialog = new LoadingDialog(this);
-        }
-        loadingDialog.show(message, true, false);
-    }
-
-    private void hideLoadingDialog() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
         }
     }
 
